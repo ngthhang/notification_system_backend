@@ -68,7 +68,7 @@ Router.post('/login', loginValidator,(req, res) => {
             break
         }
         return res.json({
-            code: 1,
+            code: 0,
             message: message
         })
     }
@@ -133,7 +133,7 @@ Router.post('/change_password',CheckLogin, changePasswordValidator,(req, res) =>
             break
         }
         return res.json({
-            code: 1,
+            code: 0,
             message: message
         })
     }
@@ -152,14 +152,33 @@ Router.post('/create', CheckLogin, addUserValidator,(req, res) => {
                 // check if category_id exist
                 if (category_id){
                     // check if category_id exist in database
-                    for (cat_id in category_id){
-                        CategoryModel.findById(cat_id)
-                            .then(cat => {
-                                if (!cat) throw new Error('Category id không tồn tại')
+                    category_id.forEach(function (cat_id){
+                        CategoryModel.count({_id: cat_id})
+                            .then(count => {
+                                if(count<1){
+                                    //document not exists
+                                    return res.json ({
+                                        code: 0,
+                                        message: "Category id không tồn tại",
+                                    })
+                                }
                             })
+                            .catch(e => {
+                                if (e.message.includes('Cast to ObjectId failed')) {
+                                    return res.json ({
+                                        code: 0,
+                                        message: "Đây không phải là ID hợp lệ",
+                                        id: cat_id,
+                                        category_id: category_id,
+                                    })
+                                }
+                                return res.json ({
+                                    code: 0,
+                                    message: e.message,
+                                })
+                            })
+                        })
                     }
-                }
-
             })
             .then(() =>
                 bcrypt.hash(password, 10)
@@ -173,7 +192,7 @@ Router.post('/create', CheckLogin, addUserValidator,(req, res) => {
                     name: name,
                     avatar: avartar
                 })
-                return user.save()
+                // return user.save()
             })
             .then(() =>{
                 return res.json({
