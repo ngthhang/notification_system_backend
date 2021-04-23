@@ -17,7 +17,7 @@ const CheckLogin = require('../auth/CheckLogin')
 const addCategoriesValidator = require('../routers/validators/addCategoriesValidator')
 
 Router.get('/', (req, res) => {
-    CategoryModel.find().select('name price desc')
+    CategoryModel.find().select('name short_name alias_key')
         .then(categories => {
             res.json ({
                 code: 0,
