@@ -100,15 +100,15 @@ Router.put('/',CheckLogin, addNotifyValidator, upload.array('attachment',10), (r
     // below valid when pass validator
 
     try {
-        let {header, content, category, noti_id} = req.body
+        let {header, content, category, noti_id, previous_files} = req.body
         // check files
-        let newPaths = []
+        let newPaths = previous_files
         for (file of req.files) {
             newPaths.push(file.destination + "/" + file.filename)
         }
         if (!noti_id) throw new Error("Không có dữ liệu noti id")
         if (!res.locals.user.user_id) throw new Error("Thông tin JWT token sai ")
-        
+
         CategoryModel.findById(category)
             .then(function (cat) {
                 if(!cat){
@@ -123,11 +123,7 @@ Router.put('/',CheckLogin, addNotifyValidator, upload.array('attachment',10), (r
                     content: content,
                     create_at: Date.now(),
                     category: cat,
-                    $push: {
-                        'files_url': {
-                            $each: newPaths,
-                        },
-                    }
+                    files_url: newPaths
                 }
                 return updateFields
             })

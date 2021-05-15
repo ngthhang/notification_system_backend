@@ -104,14 +104,14 @@ Router.put('/', CheckLogin,updatePostValidator, upload.array('attachment',10),(r
     try{
         // below valid when pass validator
 
-        let {content, post_id, video} = req.body
+        let {content, post_id, video, previous_files} = req.body
         if (!post_id) throw new Error("Không có dữ liệu post_id")
 
         let updateFields = {
             content: content,
             create_at: Date.now(),
         }
-        let newPaths = []
+        let newPaths = previous_files
         for (file of req.files) {
             newPaths.push(file.destination + "/" + file.filename)
         }
