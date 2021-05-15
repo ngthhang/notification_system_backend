@@ -17,12 +17,15 @@ const CheckLogin = require('../auth/CheckLogin')
 const addUserValidator = require('./validators/addUserValidator')
 const loginValidator = require('./validators/loginValidator')
 const changePasswordValidator = require('./validators/changePasswordValidator')
+
 // user login
 Router.post('/login', loginValidator,(req, res) => {
     let result = validationResult(req)
+    let account;
     if (result.errors.length === 0 ) {
         let {username, password} = req.body
         UserModel.findOne({username:username})
+            .populate('category_id')
             .then(user => {
                 if (!user) {
                     throw new Error("Username hoặc password không chính xác")
@@ -39,17 +42,16 @@ Router.post('/login', loginValidator,(req, res) => {
                 }
                 const {JWT_SECRET} = process.env
                 jwt.sign({
-                    username: account.email,
-                    name: account.name
+                    user_id: account._id,
                 },JWT_SECRET, {
-                    expiresIn: "1h"
+                    expiresIn: "24h"
                 }, (err, token) => {
                     if (err) throw err
                     return res.json({
                         code: 1,
                         message: "Đăng nhập thành công",
                         user: account,
-                        token: token
+                        token: token,
                     })
                 })
             })
@@ -192,7 +194,7 @@ Router.post('/create', CheckLogin, addUserValidator,(req, res) => {
                     name: name,
                     avatar: avartar
                 })
-                // return user.save()
+                return user.save()
             })
             .then(() =>{
                 return res.json({
@@ -221,4 +223,44 @@ Router.post('/create', CheckLogin, addUserValidator,(req, res) => {
     }
 })
 
+// get user by id
+Router.get('/:user_id',CheckLogin, (req,res) =>{
+    let {user_id} = req.params
+    try{
+        UserModel.findOne(
+            {_id: user_id}
+        )
+            .select("username role category_id name avatar")
+            .populate('category_id')
+            .then(user => {
+                if (!user) throw new Error("User không tồn tại")
+                return user
+            })
+            .then(user =>{
+                return res.json({
+                    code: 1,
+                    message: "Đã lấy thông tin user thành công",
+                    user: user,
+                })
+            })
+            .catch (e => {
+                MongooseErrorHandler(e, req, res)
+            })
+    }catch (e) {
+        MongooseErrorHandler(e, req, res)
+    }
+})
+
+function MongooseErrorHandler(e, req, res) {
+    if (e.message.includes('Cast to ObjectId failed')) {
+        return res.json ({
+            code: 0,
+            message: "Đây không phải là ID hợp lệ",
+        })
+    }
+    return res.json ({
+        code: 0,
+        message: e.message,
+    })
+}
 module.exports = Router

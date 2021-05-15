@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
     if (!authorization) {
         return res.status(401)
             .json({
-                code: 1,
+                code: 10,
                 message: "Vui lòng cung cấp jwt token qua header"
             })
     }
@@ -14,7 +14,7 @@ module.exports = (req, res, next) => {
     if (!token) {
         return res.status(401)
             .json({
-                code: 2,
+                code: 11,
                 message: "Vui lòng cung cấp jwt token hợp lệ"
             })
     }
@@ -23,7 +23,7 @@ module.exports = (req, res, next) => {
     if (!token) {
         return res.status(401)
             .json({
-                code: 3,
+                code: 12,
                 message: "Vui lòng cung cấp jwt token"
             })
     }
@@ -31,11 +31,11 @@ module.exports = (req, res, next) => {
         if (err) {
             return res.status(401)
                 .json({
-                    code: 4,
+                    code: 13,
                     message: "Token không hợp lệ hoặc đã hết hạn"
                 })
         }
-        req.user = data
+        res.locals.user = data
         next();
     })
 }

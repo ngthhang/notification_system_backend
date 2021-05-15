@@ -17,16 +17,27 @@ const CheckLogin = require('../auth/CheckLogin')
 const addCategoriesValidator = require('../routers/validators/addCategoriesValidator')
 
 Router.get('/', (req, res) => {
-    CategoryModel.find().select('name short_name alias_key')
+    CategoryModel.find()
         .then(categories => {
             res.json ({
                 code: 0,
-                message: "Đọc hết sản phẩm thành công",
+                message: "Đọc hết danh mục thành công",
                 data: categories
             })
         })
 })
 
+Router.get('/:alias_key', (req, res) => {
+    let {alias_key} = req.params
+    CategoryModel.findOne({alias_key: alias_key}).select('name short_name alias_key')
+        .then(categories => {
+            res.json ({
+                code: 0,
+                message: "Đọc danh mục thành công",
+                data: categories
+            })
+        })
+})
 // create category
 Router.post('/', CheckLogin, addCategoriesValidator, (req, res) => {
     let result = validationResult(req)
