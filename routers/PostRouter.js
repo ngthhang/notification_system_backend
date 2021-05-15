@@ -125,9 +125,6 @@ Router.put('/', CheckLogin,updatePostValidator, upload.array('attachment',10),(r
                 if (!res.locals.user.user_id || res.locals.user.user_id != old_post.poster){
                     throw new Error("Sai thông tin poster hoặc JWT 1")
                 }
-                if (updateFields['image'] || updateFields['video']){
-                    FileHandler.deleteFile(old_post.image)
-                }
                 return PostModel.findByIdAndUpdate(
                     post_id,
                     updateFields,
