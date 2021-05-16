@@ -60,7 +60,7 @@ app.use('/post', PostRouter)
 const port = process.env.PORT || 8080
 var environment = process.env.NODE_ENV || 'development';
 
-const httpserver = app.listen(port, console.log('http://localhost:' + port))
+const httpserver = app.listen(port,'0.0.0.0', console.log('http://localhost:' + port))
 const io = socketio(httpserver)
 
 io.on('connection', client => {
