@@ -37,16 +37,6 @@ app.get('/', (req, res) => {
     })
 })
 
-// use router
-app.use('/user', UserRouter)
-app.use('/categories', CategoriesRouter)
-app.use('/student', StudentRouter)
-app.use('/notify', NotifyRouter)
-app.use('/post', PostRouter)
-
-const port = process.env.PORT || 8080
-var environment = process.env.NODE_ENV || 'development';
-
 // connect mongoose and start server
 var opts = {
     useNewUrlParser: true,
@@ -59,6 +49,16 @@ mongoose.connect(credentials.mongo.development.connectionString, {
     useUnifiedTopology: true
 })
     .catch(e => console.log("Không thể kết nối tới db server:"+ e.message))
+
+// use router
+app.use('/user', UserRouter)
+app.use('/categories', CategoriesRouter)
+app.use('/student', StudentRouter)
+app.use('/notify', NotifyRouter)
+app.use('/post', PostRouter)
+
+const port = process.env.PORT || 8080
+var environment = process.env.NODE_ENV || 'development';
 
 const httpserver = app.listen(port, console.log('http://localhost:' + port))
 const io = socketio(httpserver)
