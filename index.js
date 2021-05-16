@@ -1,7 +1,6 @@
 // require credentials
 require('dotenv').config()
 var credentials = require("./credential");
-const socketio = require('socket.io')
 
 // require modules
 const express = require('express')
@@ -61,10 +60,14 @@ const port = process.env.PORT || 8080
 var environment = process.env.NODE_ENV || 'development';
 
 const httpserver = app.listen(port,'0.0.0.0', console.log('http://localhost:' + port))
-const io = socketio(httpserver)
-
+const io = require('socket.io')(httpserver, {
+    cors: {
+        origin: '*',
+    }
+});
 io.on('connection', client => {
+    console.log(`Client ${client.id} connected`)
     client.on('new-noti-send', data =>{
-        client.broadcast.emit('new-noti',{data: data})
+        client.broadcast.emit('new-noti',data)
     })
 })
