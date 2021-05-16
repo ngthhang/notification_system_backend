@@ -1,6 +1,7 @@
 // require credentials
 require('dotenv').config()
 var credentials = require("./credential");
+const socketio = require('socket.io')
 
 // require modules
 const express = require('express')
@@ -53,26 +54,17 @@ var opts = {
     useFindAndModify: false,
     useCreateIndex: true,
 }
-// switch (environment){
-//     case 'development':
-//         mongoose.connect(credentials.mongo.development.connectionString, opts)
-//             .then(() => {
-//                 app.listen(port, console.log('http://localhost:' + port))
-//             })
-//             .catch(e => console.log("Cannot connect to mongoDB:"+ e.message))
-//         break;
-//     case 'production':
-//         mongoose.connect(credentials.mongo.production.connectionString, opts)
-//             .catch(e => console.log("Cannot connect to mongoDB:"+ e.message))
-//         break;
-//     default:
-//         throw new Error('Unknown execution environment :'+ environment)
-// }
 mongoose.connect(credentials.mongo.development.connectionString, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-    .then(() => {
-        app.listen(port, console.log('http://localhost:' + port))
-    })
     .catch(e => console.log("Không thể kết nối tới db server:"+ e.message))
+
+const httpserver = app.listen(port, console.log('http://localhost:' + port))
+const io = socketio(httpserver)
+
+io.on('connection', client => {
+    client.on('new-noti-send', data =>{
+        client.broadcast.emit('new-noti',{data: data})
+    })
+})

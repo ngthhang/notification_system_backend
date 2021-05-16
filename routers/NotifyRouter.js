@@ -102,7 +102,7 @@ Router.put('/',CheckLogin, addNotifyValidator, upload.array('attachment',10), (r
     try {
         let {header, content, category, noti_id, previous_files} = req.body
         // check files
-        let newPaths = previous_files
+        let newPaths = Array.from(previous_files)
         for (file of req.files) {
             newPaths.push(file.destination + "/" + file.filename)
         }

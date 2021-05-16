@@ -111,7 +111,7 @@ Router.put('/', CheckLogin,updatePostValidator, upload.array('attachment',10),(r
             content: content,
             create_at: Date.now(),
         }
-        let newPaths = previous_files
+        let newPaths = Array.from(previous_files)
         for (file of req.files) {
             newPaths.push(file.destination + "/" + file.filename)
         }
